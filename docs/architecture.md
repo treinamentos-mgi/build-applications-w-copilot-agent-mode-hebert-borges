@@ -43,22 +43,35 @@ flowchart LR
 
 ## Decisões de implementação
 
-Registre seu plano aqui antes de editar o código.
+Plano registrado antes da edição do código, com base nas falhas atuais dos testes.
 
-- Decisão da camada de apresentação:
-- Decisão da camada de lógica:
-- Decisão da camada de dados:
-- Abordagem para registro de atividades:
-- Abordagem para gerenciamento de equipes:
-- Abordagem para o placar:
-- Abordagem para sugestões de treino:
+- **Decisão da camada de apresentação:** substituir os placeholders por componentes que consultam a API pelo cliente compartilhado em `octofit-tracker/frontend/src/api/client.ts`, com estados de carregamento (`role="status"`), lista, estado vazio e alerta de erro (`role="alert"`). Os componentes não acessam o banco nem montam URLs manualmente.
+- **Decisão da camada de lógica:** rotas em `octofit-tracker/backend/src/routes/api.ts` delegam a regra de negócio a `octofitService.ts`. Entradas inválidas retornam 4xx, nunca 500.
+- **Decisão da camada de dados:** adicionar validações obrigatórias nos modelos Mongoose (`User`, `Team`, `Activity`, `Workout`) antes de qualquer alteração de API, porque os testes de contrato de dados dependem delas.
+- **Abordagem para registro de atividades:** validar `userId` e `teamId` como ObjectId e confirmar que existem antes de salvar. Calcular `points` e `occurredAt` no serviço.
+- **Abordagem para gerenciamento de equipes:** exigir `name` e `mascot` no `POST` e retornar `400` quando faltarem.
+- **Abordagem para o placar:** agregar os pontos das atividades por equipe, ordenar do maior para o menor total e atribuir `rank` iniciando em 1.
+- **Abordagem para sugestões de treino:** derivar `focus` da meta ou da atividade recente da pessoa encontrada pelo e-mail. Retornar `404` quando não houver pessoa correspondente.
+
+Ordem de implementação: dados, depois lógica (equipes, atividades, placar, sugestões) e por último apresentação (cliente, `Activities`, `Teams`, `Leaderboard`, `Workouts`).
 
 ## Plano de testes
 
-Registre os comandos executados e o significado de cada falha.
+Comandos a executar, a partir da raiz do repositório, e o significado das falhas observadas.
 
 - Testes da camada de dados: `npm run test:data --prefix octofit-tracker/backend`
 - Testes da API: `npm run test:api --prefix octofit-tracker/backend`
 - Testes do frontend: `npm test --prefix octofit-tracker/frontend`
 - Compilação do backend: `npm run build --prefix octofit-tracker/backend`
 - Compilação do frontend: `npm run build --prefix octofit-tracker/frontend`
+
+### Última execução observada
+
+- **Dados** (`tests/data.contract.test.ts`): 8 falhas e 1 aprovado. As falhas indicam que `validateSync()` não gera erro para `name`, `email`, `fitnessGoal`, `mascot`, `type`, `user`, `team`, `focus`, `minutes` e `difficulty`. Os modelos ainda não declaram esses campos como obrigatórios.
+- **Frontend** (`tests/app.contract.test.tsx`): 15 falhas. Os componentes exibem o texto "Implementação pendente", sem chamadas à API, sem estado de carregamento, vazio ou de erro. Por isso `getByText`, `getByRole('status')`, `getByRole('alert')` e a chamada `fetch` para `/api/workouts/suggestions/mona@example.com` não encontram nada.
+
+### Critério de aceite
+
+- Os testes de dados passam antes de qualquer alteração na API.
+- Os testes da API passam antes de qualquer alteração no frontend.
+- Os testes do frontend e as duas compilações passam ao final.
