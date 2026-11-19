@@ -45,13 +45,13 @@ flowchart LR
 
 Plano registrado antes da edição do código, com base nas falhas atuais dos testes.
 
-- **Decisão da camada de apresentação:** substituir os placeholders por componentes que consultam a API pelo cliente compartilhado em `octofit-tracker/frontend/src/api/client.ts`, com estados de carregamento (`role="status"`), lista, estado vazio e alerta de erro (`role="alert"`). Os componentes não acessam o banco nem montam URLs manualmente.
-- **Decisão da camada de lógica:** rotas em `octofit-tracker/backend/src/routes/api.ts` delegam a regra de negócio a `octofitService.ts`. Entradas inválidas retornam 4xx, nunca 500.
-- **Decisão da camada de dados:** adicionar validações obrigatórias nos modelos Mongoose (`User`, `Team`, `Activity`, `Workout`) antes de qualquer alteração de API, porque os testes de contrato de dados dependem delas.
-- **Abordagem para registro de atividades:** validar `userId` e `teamId` como ObjectId e confirmar que existem antes de salvar. Calcular `points` e `occurredAt` no serviço.
-- **Abordagem para gerenciamento de equipes:** exigir `name` e `mascot` no `POST` e retornar `400` quando faltarem.
-- **Abordagem para o placar:** agregar os pontos das atividades por equipe, ordenar do maior para o menor total e atribuir `rank` iniciando em 1.
-- **Abordagem para sugestões de treino:** derivar `focus` da meta ou da atividade recente da pessoa encontrada pelo e-mail. Retornar `404` quando não houver pessoa correspondente.
+- Decisão da camada de apresentação: substituir os placeholders por componentes que consultam a API pelo cliente compartilhado em `octofit-tracker/frontend/src/api/client.ts`, com estados de carregamento (`role="status"`), lista, estado vazio e alerta de erro (`role="alert"`). Os componentes não acessam o banco nem montam URLs manualmente.
+- Decisão da camada de lógica: rotas em `octofit-tracker/backend/src/routes/api.ts` delegam a regra de negócio a `octofitService.ts`. Entradas inválidas retornam 4xx, nunca 500.
+- Decisão da camada de dados: adicionar validações obrigatórias nos modelos Mongoose (`User`, `Team`, `Activity`, `Workout`) antes de qualquer alteração de API, porque os testes de contrato de dados dependem delas.
+- Abordagem para registro de atividades: validar `userId` e `teamId` como ObjectId e confirmar que existem antes de salvar. Calcular `points` e `occurredAt` no serviço.
+- Abordagem para gerenciamento de equipes: exigir `name` e `mascot` no `POST` e retornar `400` quando faltarem.
+- Abordagem para o placar: agregar os pontos das atividades por equipe, ordenar do maior para o menor total e atribuir `rank` iniciando em 1.
+- Abordagem para sugestões de treino: derivar `focus` da meta ou da atividade recente da pessoa encontrada pelo e-mail. Retornar `404` quando não houver pessoa correspondente.
 
 Ordem de implementação: dados, depois lógica (equipes, atividades, placar, sugestões) e por último apresentação (cliente, `Activities`, `Teams`, `Leaderboard`, `Workouts`).
 
